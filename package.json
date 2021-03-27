@@ -1,9 +1,7 @@
 {
   "name": "moveit-server",
   "version": "1.0.0",
-  "main": "server.ts",
-  "repository": "https://github.com/Vavarine/moveit-server.git",
-  "author": "Vavarine <Vavarine@users.noreply.github.com>",
+  "main": "index.ts",
   "license": "MIT",
   "scripts": {
     "start": "ts-node-dev --ignore-watch node_modules src/server.ts"
@@ -11,8 +9,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "ts-node-dev": "^1.1.6",
-    "typeorm": "^0.2.31"
+    "ts-node-dev": "^1.1.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.10",

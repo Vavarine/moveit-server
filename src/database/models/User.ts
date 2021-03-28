@@ -22,4 +22,7 @@ export default class User {
 
 	@Column()
 	level: number
+
+	@Column()
+	profile_image: string
 }

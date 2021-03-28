@@ -40,6 +40,9 @@ export default {
 	async create(req: Request, res: Response) {
 		const usersRepository = getRepository(User)
 		const saltRounds = 10
+		const profile_image = req.file.filename
+
+		console.log(profile_image)
 
 		const schema = yup.object().shape({
 			email: yup.string().required().max(150),
@@ -48,6 +51,7 @@ export default {
 			experience: yup.number().required().positive().integer(),
 			challenges_completed: yup.number().required().positive().integer(),
 			level: yup.number().required().positive().integer(),
+			profile_image: yup.string()
 		})
 
 		await schema.validate(req.body, { abortEarly: false })
@@ -58,7 +62,8 @@ export default {
 				password: hash,
 				experience: req.body.experience,
 				challenges_completed: req.body.challenges_completed,
-				level: req.body.level
+				level: req.body.level,
+				profile_image
 			})
 
 			usersRepository.save(user).then(data => {

@@ -1,5 +1,7 @@
 # Sensitive
 ormconfig.json
+uploads/*
+!uploads/.gitkeep
 
 # Logs
 logs

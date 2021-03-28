@@ -42,6 +42,10 @@ export class UserTableCreate1616884134373 implements MigrationInterface {
 					name: 'level',
 					type: 'integer',
 				},
+				{
+					name: 'profile_image',
+					type: 'varchar',
+				},
 			]
 		}))
 	}

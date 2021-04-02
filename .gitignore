@@ -2,6 +2,7 @@
 ormconfig.json
 uploads/*
 !uploads/.gitkeep
+!uploads/default*
 
 # Logs
 logs

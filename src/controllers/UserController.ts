@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { getRepository } from "typeorm"
 import * as yup from 'yup'
 import bcrypt from "bcrypt"
+import jwt from 'jsonwebtoken'
 
 import User from "../database/models/User"
 
@@ -10,9 +11,9 @@ export default {
 		const usersRepository = getRepository(User)
 
 		usersRepository.find().then(data => {
-			res.status(200).json(data)
+			return res.status(200).json(data)
 		}).catch(err => {
-			res.status(404).json({ message: 'Nothing found' })
+			return res.status(404).json({ message: 'Nothing found' })
 		})
 	},
 
@@ -21,9 +22,9 @@ export default {
 		const usersRepository = getRepository(User)
 
 		usersRepository.findOneOrFail(id).then(data => {
-			res.status(200).json(data)
+			return res.status(200).json(data)
 		}).catch(err => {
-			res.status(404).json({ message: 'Not found' })
+			return res.status(404).json({ message: 'Not found' })
 		})
 	},
 
@@ -31,21 +32,18 @@ export default {
 		const usersRepository = getRepository(User)
 
 		usersRepository.find({ order: { level: "DESC" } }).then(data => {
-			res.status(200).json(data)
+			return res.status(200).json(data)
 		}).catch(err => {
-			res.status(404).json({ message: 'Nothing found' })
+			return res.status(404).json({ message: 'Nothing found' })
 		})
 	},
 
 	async create(req: Request, res: Response) {
 		const usersRepository = getRepository(User)
-		const saltRounds = 10
-		const profile_image = req.file.filename
-
-		console.log(profile_image)
+		const saltRounds = 6
+		const profile_image = req.file?.filename || 'default.png'
 
 		const schema = yup.object().shape({
-			email: yup.string().required().max(150),
 			username: yup.string().required().max(150),
 			password: yup.string().required().max(150),
 			experience: yup.number().required().positive().integer(),
@@ -55,9 +53,8 @@ export default {
 		})
 
 		await schema.validate(req.body, { abortEarly: false })
-		bcrypt.hash(req.body.password.replace(/(\r\n|\n|\r)/gm, ""), saltRounds, (err, hash) => {
+		bcrypt.hash(req.body.password, saltRounds).then(hash => {
 			const user = usersRepository.create({
-				email: req.body.email.replace(/(\r\n|\n|\r)/gm, ""),
 				username: req.body.username.replace(/(\r\n|\n|\r)/gm, ""),
 				password: hash,
 				experience: req.body.experience,
@@ -70,12 +67,42 @@ export default {
 				return res.status(201).json(data)
 			}).catch(err => {
 				console.log(err);
-
-				if (err.code === "SQLITE_CONSTRAINT") {
-					return res.status(400).json({ message: 'Email already in use' });
+	
+				if (err.code === "ER_DUP_ENTRY") {
+					return res.status(400).json({ message: 'Username already in use' });
 				} else {
 					return res.status(500).send({ message: 'Internal server error' });
 				}
+			})
+		}).catch(err => {
+			return res.status(500).send({ message: 'Internal server error' });
+		})
+	},
+
+	async login(req: Request, res: Response) {
+		const schema = yup.object().shape({
+			username: yup.string().required(),
+			password: yup.string().required()
+		})
+		await schema.validate(req.body, { abortEarly: false })
+
+		const { username, password } = req.body
+		const usersRepository = getRepository(User)
+
+		usersRepository.findOneOrFail({ username }).then(user => {	
+			bcrypt.compare(password, user.password).then(data => {
+				if(!data) return res.status(401).json({ auth: false })
+				const { id } = user
+
+				const token = jwt.sign({ id }, process.env.SECRET as string, {
+					expiresIn: 604800
+				})
+
+				return res.status(200).json({ auth: true, token })
+			}).catch(err => {
+				console.log(err)
+				
+				return res.status(500).json({ auth: false })
 			})
 		})
 	}

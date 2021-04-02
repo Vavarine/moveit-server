@@ -3,8 +3,6 @@ import { MigrationInterface, QueryRunner, Table } from "typeorm"
 export class UserTableCreate1616884134373 implements MigrationInterface {
 
 	public async up(queryRunner: QueryRunner): Promise<void> {
-		console.log('teste')
-
 		await queryRunner.createTable(new Table({
 			name: 'users',
 			columns: [
@@ -15,11 +13,6 @@ export class UserTableCreate1616884134373 implements MigrationInterface {
 					isPrimary: true,
 					isGenerated: true,
 					generationStrategy: "increment"
-				},
-				{
-					name: 'email',
-					type: 'varchar',
-					isUnique: true
 				},
 				{
 					name: 'username',

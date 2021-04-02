@@ -17,6 +17,7 @@ app.use(cors())
 app.use(express.json())
 app.use(authenticator)
 app.use('/api', router)
+app.use('/public/uploads', express.static(path.join(__dirname, '..', 'uploads')))
 app.use(errorHandler)
 
 app.listen(3333)

@@ -3,6 +3,7 @@ import { getRepository } from "typeorm"
 import * as yup from 'yup'
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
+import userView from '../views/userView'
 
 import User from "../database/models/User"
 
@@ -11,7 +12,7 @@ export default {
 		const usersRepository = getRepository(User)
 
 		usersRepository.find().then(data => {
-			return res.status(200).json(data)
+			return res.status(200).json(userView.renderMany(data))
 		}).catch(err => {
 			return res.status(404).json({ message: 'Nothing found' })
 		})
@@ -22,7 +23,7 @@ export default {
 		const usersRepository = getRepository(User)
 
 		usersRepository.findOneOrFail(id).then(data => {
-			return res.status(200).json(data)
+			return res.status(200).json(userView.render(data))
 		}).catch(err => {
 			return res.status(404).json({ message: 'Not found' })
 		})
@@ -32,7 +33,7 @@ export default {
 		const usersRepository = getRepository(User)
 
 		usersRepository.find({ order: { level: "DESC" } }).then(data => {
-			return res.status(200).json(data)
+			return res.status(200).json(userView.renderMany(data))
 		}).catch(err => {
 			return res.status(404).json({ message: 'Nothing found' })
 		})
@@ -64,7 +65,7 @@ export default {
 			})
 
 			usersRepository.save(user).then(data => {
-				return res.status(201).json(data)
+				return res.status(201).json(userView.render(data))
 			}).catch(err => {
 				console.log(err);
 	
@@ -98,7 +99,7 @@ export default {
 					expiresIn: 604800
 				})
 
-				return res.status(200).json({ auth: true, token })
+				return res.status(200).json({ auth: true, token, user: userView.render(user) })
 			}).catch(err => {
 				console.log(err)
 				

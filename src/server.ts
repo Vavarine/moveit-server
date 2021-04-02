@@ -11,7 +11,6 @@ import errorHandler from './error/errorHandler'
 import authenticator from './middlewares/authenticator'
 
 const app = express()
-const upload = multer(uploadConfig)
 
 app.use(cors())
 app.use(express.json())
